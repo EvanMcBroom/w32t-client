@@ -1,3 +1,5 @@
+// Copyright (C) 2022 Evan McBroom
+
 #include <iostream>
 #include <rpc.hpp>
 #include <vector>

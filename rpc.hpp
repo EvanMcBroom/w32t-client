@@ -1,3 +1,5 @@
+// Copyright (C) 2022 Evan McBroom
+
 #pragma once
 #include <rpc.h>
 #include <string>

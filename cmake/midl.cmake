@@ -67,7 +67,8 @@ function(target_idl_sources)
     set(ENV{PATH} "${ENV_PATH}")
 
     # Run the batch file to generate the RPC client stubs
-    if(NOT DEFINED GENERATED_CLIENT_STUBS)
+    set(${GENERATED_CLIENT_STUBS} "GENERATED_CLIENT_STUBS_FOR_${MIDL_TARGET}")
+    if(NOT DEFINED ${GENERATED_CLIENT_STUBS})
         execute_process(
             COMMAND "${MIDL_BATCH_FILE}"
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -75,7 +76,7 @@ function(target_idl_sources)
         )
         # Overwrite the generated ms-dtyp.h file to prevent error due to the redefinition of Windows base types
         configure_file(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/ms-dtyp.h.in ${CMAKE_CURRENT_BINARY_DIR}/ms-dtyp.h)
-        set(GENERATED_CLIENT_STUBS TRUE CACHE BOOL "Has midl been ran to generate the client stubs?" FORCE)
+        set(${GENERATED_CLIENT_STUBS} TRUE CACHE BOOL "Has midl been ran to generate the client stubs?" FORCE)
     endif()
 
     # Populate the MIDL_OUTPUT_FILES variable, skipping _c.c files that were not generated
