@@ -53,6 +53,9 @@ function(target_idl_sources)
             "\"${MIDL_PATH}\" /env ${MIDL_ENV} /W1 /char signed /target \"NT50\" /server none /nologo "
             "/cstub \"${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}_c.c\" "
             "/h \"${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}.h\" "
+            "/dlldata \"${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}_dlldata.c\" "
+            "/iid \"${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}_i.c\" "
+            "/proxy \"${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}_p.c\" "
             "\"${FILE}\"\n"
         )
     endforeach()
@@ -85,6 +88,9 @@ function(target_idl_sources)
         get_filename_component(FILE_NAME ${FILE} NAME_WE) # Remove the .idl extension
         if(EXISTS ${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}_c.c)
             list(APPEND MIDL_OUTPUT_FILES ${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}_c.c)
+        endif()
+        if(EXISTS ${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}_i.c)
+            list(APPEND MIDL_OUTPUT_FILES ${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}_i.c)
         endif()
     endforeach()
 
