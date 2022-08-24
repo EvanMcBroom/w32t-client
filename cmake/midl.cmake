@@ -114,9 +114,8 @@ function(target_idl_sources)
     # Populate the MIDL_OUTPUT_FILES variable, skipping _c.c files that were not generated
     foreach(FILE IN ITEMS ${IDL_FILES})
         list(APPEND MIDL_OUTPUT_FILES ${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}.h)
-        get_filename_component(FILE_NAME ${FILE} NAME_WE) # Remove the .idl extension
-        if(EXISTS ${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}_c.c)
-            list(APPEND MIDL_OUTPUT_FILES ${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}_c.c)
+        if(EXISTS ${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}.c)
+            list(APPEND MIDL_OUTPUT_FILES ${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}.c)
         endif()
         if(EXISTS ${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}_i.c)
             list(APPEND MIDL_OUTPUT_FILES ${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}_i.c)
