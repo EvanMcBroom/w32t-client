@@ -10,7 +10,7 @@ target_idl_sources(<target> <CLIENT|SERVER> [items1...])
 ```
 
 The `target_idl_sources` function may be used to generate source code with the client or server stub functions for a given set of IDL files.
-The generated source code will be added to the list of source files for target.
+The generated source code will be added to the list of source files for a target.
 
 ## Building
 
