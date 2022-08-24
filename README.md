@@ -3,6 +3,15 @@
 An example RPC client for the [MS-W32T server interfaces](https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-w32t/82603ee2-d358-42b9-8e56-434633ce186d).
 The main goal of this project is to show how to integrate the use of the Microsoft IDL compiler (e.g. `midl.exe`) into a software project managed by CMake.
 
+The project provides a [CMake](https://cmake.org/) file that defines a new function:
+
+```
+target_idl_sources(<target> <CLIENT|SERVER> [items1...])
+```
+
+The `target_idl_sources` function may be used to generate source code with the client or server stub functions for a given set of IDL files.
+The generated source code will be added to the list of source files for target.
+
 ## Building
 
 The MS-W32T client requires [CMake](https://cmake.org/) and a Windows SDK to generate and run the build system files for your platform.

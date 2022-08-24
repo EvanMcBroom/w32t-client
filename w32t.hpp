@@ -1,5 +1,5 @@
 #pragma once
-#include <ms-w32t.h>
+#include <ms-w32t_c.h>
 #include <rpc.hpp>
 #include <string>
 

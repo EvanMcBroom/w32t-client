@@ -30,6 +30,6 @@ target_sources(${client} PRIVATE
     w32t.hpp
     w32t.cpp
 )
-target_idl_sources(TARGET ${client} SOURCES ms-w32t.idl)
+target_idl_sources(${client} CLIENT SOURCES ms-w32t.idl)
 target_compile_definitions(${client} PUBLIC WIN32_LEAN_AND_MEAN)
 target_precompile_headers(${client} PUBLIC <Windows.h>)

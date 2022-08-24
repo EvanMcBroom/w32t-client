@@ -1,5 +1,20 @@
 # Copyright (C) 2022 Evan McBroom
 
+#! target_idl_sources : Add idl sources to a target.
+#
+# target_idl_sources(<target> <CLIENT|SERVER> [items1...])
+#
+# Specifies idl sources to use when building a target.
+# The named <target> must have been created by a command such as add_executable() or add_library() or add_custom_target() and must not be an ALIAS target.
+# The <items> may use generator expressions.
+#
+# The CLIENT and SERVER keywords are required to specify the type of stubs to build from the source file paths (<items>) that follow them.
+# All generated stubs will be PRIVATE scoped when added to the target.
+# 
+# \arg:target the first argument
+# \arg:stub_type must be CLIENT or SERVER
+# \group:items a list of idl files to add
+#
 function(target_idl_sources)
     # Process the function's arguments
     set(OPTIONS)
@@ -8,16 +23,19 @@ function(target_idl_sources)
     cmake_parse_arguments(MIDL "${OPTIONS}" "${ONE_VALUE_ARGS}" "${MULTI_VALUE_ARGS}" ${ARGN})
 
     # Check that the user supplied the required arguments and that SOURCES is not empty
-    if(NOT DEFINED MIDL_TARGET)
-        message(FATAL_ERROR "Missing required argument: TARGET")
-    elseif(NOT DEFINED MIDL_SOURCES)
-        message(FATAL_ERROR "Missing required argument: SOURCES")
+    if (${ARGC} LESS 1)
+        message(FATAL_ERROR "Argument 1, target not specified")
+    elseif(NOT (${ARGV1} STREQUAL "CLIENT") AND NOT (${ARGV1} STREQUAL "SERVER"))
+        message(FATAL_ERROR "Argument 2, stub type must be CLIENT or SERVER")
     else()
         list(LENGTH MIDL_SOURCES NUMBER_OF_SOURCES)
         if(${NUMBER_OF_SOURCES} EQUAL 0)
             message(FATAL_ERROR "Argument SOURCES does not have any values.")
         endif()
     endif()
+    set(MIDL_TARGET ${ARGV0})
+    set(MIDL_STUB_TYPE ${ARGV1})
+
 
     set(IDL_FILES
         # You need to include the MS-DTYP IDL to allow the include statements in the other IDL file to resolve correctly
@@ -42,16 +60,27 @@ function(target_idl_sources)
     get_filename_component(WINDOWS_SDK_DIR "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows Kits\\Installed Roots;KitsRoot10]" ABSOLUTE)
     set(MIDL_PATH ${WINDOWS_SDK_DIR}/bin/${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}/${MIDL_ARCH}/midl.exe)
 
+    # Set the midl compiler options for the stub type
+    if(${MIDL_STUB_TYPE} STREQUAL "CLIENT")
+        set(MIDL_STUB_OPTIONS "/client stub /server none")
+        set(MIDL_STUB_SUFFIX "_c")
+    else()
+        set(MIDL_STUB_OPTIONS "/client none /server stub")
+        set(MIDL_STUB_SUFFIX "_s")
+    endif()
+
     # Populate the MIDL_BATCH_FILE_CONTENT variable
     foreach(FILE IN ITEMS ${IDL_FILES})
         get_filename_component(FILE_NAME ${FILE} NAME_WE) # Option NAME_WE will remove the .idl extension
+        set(FILE_NAME ${FILE_NAME}${MIDL_STUB_SUFFIX}) # Add a client/server suffix to avoid stubs from overwritten each other
         set(MIDL_BATCH_FILE_CONTENT
             ${MIDL_BATCH_FILE_CONTENT}
             # https://docs.microsoft.com/en-us/windows/win32/midl/midl-command-line-reference
             # Note: These RPC stubs use a C extension. Your CMake project or target MUST include the C
             # language for these stubs to participate builds
-            "\"${MIDL_PATH}\" /env ${MIDL_ENV} /W1 /char signed /target \"NT50\" /server none /nologo "
-            "/cstub \"${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}_c.c\" "
+            "\"${MIDL_PATH}\" /env ${MIDL_ENV} /W1 /char signed /target \"NT50\" ${MIDL_STUB_OPTIONS} /nologo "
+            "/cstub \"${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}.c\" "
+            "/sstub \"${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}.c\" "
             "/h \"${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}.h\" "
             "/dlldata \"${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}_dlldata.c\" "
             "/iid \"${CMAKE_CURRENT_BINARY_DIR}/${FILE_NAME}_i.c\" "
